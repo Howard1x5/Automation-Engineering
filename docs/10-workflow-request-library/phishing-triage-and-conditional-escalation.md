@@ -196,15 +196,31 @@ Tool familiarity will be expanded as platform knowledge increases.
 
 ## 12. API Integration Notes
 
-Areas requiring further research:
+This workflow depends on multiple API integrations for enrichment and response.
 
-* Email security APIs
-* Identity and endpoint management APIs
-* OSINT service APIs
-* Rate limiting and pagination handling
-* Authentication models
+### Likely API Calls (Examples)
+- Email security: retrieve message metadata, URLs, attachment hashes, quarantine status
+- Proxy/network: confirm whether the user reached the domain
+- Identity provider: pull sign-in events and risk signals around the interaction window
+- Endpoint: isolate endpoint or collect device status (if permitted)
+- OSINT: URL/domain reputation lookups
 
-This is an identified learning gap.
+### Key Engineering Considerations
+- Authentication and permissions:
+  - 401 indicates invalid/expired auth
+  - 403 indicates insufficient permissions/scope
+- Pagination:
+  - Results may be returned in pages (page+limit or cursor tokens)
+  - Automation must loop through pages or risk incomplete investigation
+- Rate limits:
+  - 429 indicates too many requests
+  - Use backoff/retry and reduce repeated lookups via caching
+- Idempotency:
+  - Response actions must avoid duplicates during retries
+  - Prefer state checks and dedupe keys before taking action
+- Reliability:
+  - 5xx and timeouts require retry with backoff, then escalation if persistent
+
 
 ---
 
