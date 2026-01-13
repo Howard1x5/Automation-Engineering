@@ -113,21 +113,41 @@ These constraints may require escalation rather than automation.
 
 ## 8. Decision Logic
 
-* Boolean checks:
+### Evidence Scoring (Default Model)
 
-  * User clicked URL
-  * Proxy connection confirmed
-  * OSINT marks URL as suspicious/malicious
-* Conditional thresholds:
+Each signal contributes to a cumulative confidence score.
 
-  * ≥ X similar emails internally → possible campaign
-* Confidence scoring:
+- Proxy-confirmed URL access: +40
+- OSINT verdict = malicious: +30
+- Suspicious sign-in following interaction: +30
+- No proxy access detected: −40
+- Known benign domain: −30
 
-  * High confidence (>90%) → automated response
-  * Medium confidence (60–90%) → escalate to human
-  * Low confidence (<60%) → close as informational
+### Confidence Thresholds (Default)
 
-All thresholds must be explicitly defined per client.
+- ≥ 90: High confidence compromise
+- 60–89: Medium confidence
+- < 60: Low confidence
+
+### Outcomes
+
+- High confidence (≥ 90):
+  - Automated containment actions where permitted
+  - Escalation to analyst for confirmation
+
+- Medium confidence (60–89):
+  - Escalation to analyst
+  - No automated destructive action
+
+- Low confidence (< 60):
+  - Close as informational
+  - No action required
+
+### Notes
+
+- Thresholds are tunable per client
+- Default values are adjusted based on historical alert data,
+  false positive rates, and client risk tolerance
 
 ---
 
