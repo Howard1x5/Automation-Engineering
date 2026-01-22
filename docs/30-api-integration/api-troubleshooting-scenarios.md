@@ -2,6 +2,10 @@
 
 **Purpose:** Real-world API integration failure diagnosis and resolution guide
 
+**Related Demo:** See `/demos/api-integration-demo/` for a working API that demonstrates these failure modes.
+
+---
+
 ---
 
 ## Quick Reference: HTTP Status Codes
