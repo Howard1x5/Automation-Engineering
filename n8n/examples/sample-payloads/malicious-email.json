@@ -1,0 +1,19 @@
+{
+  "id": "msg-001",
+  "received_at": "2024-01-15T14:32:00Z",
+  "sender": {
+    "email": "security-alert@paypa1-verify.com",
+    "display_name": "PayPal Security"
+  },
+  "recipient": "user@company.com",
+  "subject": "Urgent: Your account has been limited",
+  "body": "Dear Customer, We noticed unusual activity. Please verify your account immediately at https://paypa1-secure.malicious-site.com/verify",
+  "urls": [
+    "https://paypa1-secure.malicious-site.com/verify"
+  ],
+  "sender_ip": "185.220.101.42",
+  "headers": {
+    "x-originating-ip": "185.220.101.42",
+    "authentication-results": "spf=fail; dkim=none"
+  }
+}

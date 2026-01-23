@@ -1,0 +1,22 @@
+{
+  "data": {
+    "id": "u-5c77f14d7c8c48d4a5eb60a3c6e5b4f8e0a7d1c9b3e5f2a8",
+    "type": "url",
+    "attributes": {
+      "url": "https://example-malicious-site.com/phishing",
+      "last_analysis_stats": {
+        "malicious": 12,
+        "suspicious": 3,
+        "harmless": 45,
+        "undetected": 28
+      },
+      "last_analysis_date": 1705312800,
+      "reputation": -45,
+      "categories": {
+        "Forcepoint ThreatSeeker": "phishing",
+        "sophos": "malware",
+        "BitDefender": "phishing"
+      }
+    }
+  }
+}

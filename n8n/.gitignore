@@ -1,0 +1,72 @@
+# ===========================================
+# SENSITIVE/CREDENTIALS - NEVER COMMIT THESE
+# ===========================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*_credentials.json
+secrets/
+
+# n8n data directory (contains encrypted credentials and execution history)
+data/
+.n8n/
+volumes/
+
+# ===========================================
+# PRIVATE NOTES - Personal planning docs
+# ===========================================
+private-notes/
+*.job_search.*
+*interview*
+*portfolio*
+N8N_PROJECT_BRIEF.md
+30_DAY_ACTION_PLAN.md
+BJJ_JOURNAL_PROJECT.md
+INTERVIEW_CHEAT_SHEET.md
+
+# ===========================================
+# STANDARD DEVELOPMENT EXCLUSIONS
+# ===========================================
+
+# Dependencies
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.cache/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# Temp files
+*.tmp
+*.bak
+tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE files
+*.swp
+*.swo
+.vscode/
+.idea/
+*.code-workspace
+
+# ===========================================
+# DOCKER SPECIFIC
+# ===========================================
+docker-compose.override.yml
+.docker/

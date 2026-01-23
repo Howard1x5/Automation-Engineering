@@ -1,0 +1,19 @@
+{
+  "id": "msg-003",
+  "received_at": "2024-01-15T11:45:00Z",
+  "sender": {
+    "email": "invoice@supplier-invoices.net",
+    "display_name": "Accounts Payable"
+  },
+  "recipient": "finance@company.com",
+  "subject": "Invoice #INV-2024-0892 - Payment Required",
+  "body": "Please find attached invoice for services rendered. Payment is due within 5 business days. Download invoice: https://supplier-invoices.net/download/inv-2024-0892.pdf",
+  "urls": [
+    "https://supplier-invoices.net/download/inv-2024-0892.pdf"
+  ],
+  "sender_ip": "104.21.45.123",
+  "headers": {
+    "x-originating-ip": "104.21.45.123",
+    "authentication-results": "spf=softfail; dkim=pass"
+  }
+}

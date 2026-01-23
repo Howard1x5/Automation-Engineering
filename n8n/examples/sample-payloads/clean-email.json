@@ -1,0 +1,19 @@
+{
+  "id": "msg-002",
+  "received_at": "2024-01-15T09:15:00Z",
+  "sender": {
+    "email": "noreply@github.com",
+    "display_name": "GitHub"
+  },
+  "recipient": "developer@company.com",
+  "subject": "Your pull request was merged",
+  "body": "The pull request #1234 has been merged into main. View the changes at https://github.com/org/repo/pull/1234",
+  "urls": [
+    "https://github.com/org/repo/pull/1234"
+  ],
+  "sender_ip": "192.30.252.200",
+  "headers": {
+    "x-originating-ip": "192.30.252.200",
+    "authentication-results": "spf=pass; dkim=pass; dmarc=pass"
+  }
+}
