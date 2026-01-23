@@ -8,7 +8,7 @@
 ## Quick Start
 
 ```bash
-cd ~/claude-workspace/n8n-project
+cd ~/Documents/Projects/Automation-Engineering/n8n
 
 # Start n8n
 docker compose up -d
