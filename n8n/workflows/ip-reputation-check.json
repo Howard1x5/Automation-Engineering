@@ -1,0 +1,200 @@
+{
+  "name": "ip-reputation-check",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2cf27102-723a-4345-aa6b-983203663f2d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f889e6f2-9edf-492e-a87f-16fdbc34b071",
+              "name": "ip_to_check",
+              "value": "89.248.165.52",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "9aa38109-9a68-404b-b345-93821d59e424",
+      "name": "ip_to_check"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.virustotal.com/api/v3/ip_addresses/{{$json.ip_to_check}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "e3d4b73d-e75a-42e1-a4a4-c933159fb878",
+      "name": "HTTP Request {VirusTotal}",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Ab8bAMUjeMgYa4Ye",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "  const vtData = $input.first().json.data.attributes;\n  const stats = vtData.last_analysis_stats;\n\n  // Calculate threat score (0-100)\n  const totalVendors = stats.malicious + stats.suspicious + stats.harmless + stats.undetected;\n  const threatScore = Math.round(((stats.malicious * 100) + (stats.suspicious * 50)) / totalVendors);\n\n  // Risk level based on malicious detection count (tuned from real-world analysis)\n  // 5+ malicious detections = HIGH (actionable threat)\n  // 2-4 malicious detections = MEDIUM (worth investigating)\n  // 0-1 malicious detections = LOW\n  let riskLevel;\n  if (stats.malicious >= 5) {\n    riskLevel = 'HIGH';\n  } else if (stats.malicious >= 2) {\n    riskLevel = 'MEDIUM';\n  } else {\n    riskLevel = 'LOW';\n  }\n\n  return {\n    ip: $input.first().json.data.id,\n    threatScore: threatScore,\n    malicious: stats.malicious,\n    suspicious: stats.suspicious,\n    harmless: stats.harmless,\n    tags: vtData.tags || [],\n    riskLevel: riskLevel\n  };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "a7c5f9c3-03d8-43bc-8e3c-9dcaee92f342",
+      "name": "Calculate Threat Score"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7590dd94-1a19-4fdd-a387-3a93b6ca2e5f",
+              "leftValue": "={{ $json.riskLevel }}",
+              "rightValue": "HIGH",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "4100206b-bc56-43ec-8b68-bd297618371f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=  **IP Address:** {{ $json.ip }}\n  **Threat Score:** {{ $json.threatScore }}/100\n  **Risk Level:** {{ $json.riskLevel }}\n  **Malicious Detections:** {{ $json.malicious }}\n  **Suspicious Detections:** {{ $json.suspicious }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        -112
+      ],
+      "id": "185dccde-a580-4ee7-8591-8b9446a97694",
+      "name": "Discord",
+      "webhookId": "4a5fd1f4-241a-4b00-9d14-3f13d1626616",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "scSk0MO9NtdKUyL0",
+          "name": "Discord Webhook account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "ip_to_check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ip_to_check": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request {VirusTotal}",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request {VirusTotal}": {
+      "main": [
+        [
+          {
+            "node": "Calculate Threat Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Threat Score": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "1c8df967-c16d-4f86-94e8-5e962c1669d5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "867df41d64ed267ee3df8d9c936cf8a1df3bf821f22cc26d55b88203308447df"
+  },
+  "id": "bYCX-nAxsBmBtO5swYWNs",
+  "tags": []
+}
