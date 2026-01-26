@@ -6,7 +6,7 @@ This workflow checks IP addresses against VirusTotal's threat intelligence datab
 
 **Flow:** Manual Trigger → Set IP → VirusTotal API → Calculate Threat Score → IF (HIGH?) → Discord Alert
 
-![Workflow Overview](images/workflow-overview.png)
+![Workflow Overview](images/ip-reputation-check/16-workflow-overview-complete.png)
 
 ## Components
 
@@ -16,7 +16,7 @@ Initiates the workflow manually for testing. In production, this would be replac
 ### 2. Set Node (ip_to_check)
 Sets the IP address to analyze. This node can be modified to accept dynamic input from previous nodes or external sources.
 
-![Set IP Node](images/set-ip-node.png)
+![Set IP Node](images/ip-reputation-check/02-set-ip-node.png)
 
 ### 3. HTTP Request (VirusTotal)
 Calls the VirusTotal API v3 IP address endpoint.
@@ -25,7 +25,7 @@ Calls the VirusTotal API v3 IP address endpoint.
 
 **Authentication:** Header Auth with API key (`x-apikey`)
 
-![VirusTotal HTTP Request](images/virustotal-http-request.png)
+![VirusTotal HTTP Request](images/ip-reputation-check/04-virustotal-api-test-success.png)
 
 ### 4. Calculate Threat Score (Code Node)
 Processes the VirusTotal response and calculates a risk level based on malicious detection counts.
@@ -59,7 +59,7 @@ return {
 };
 ```
 
-![Calculate Threat Score](images/calculate-threat-score.png)
+![Calculate Threat Score](images/ip-reputation-check/07-calculate-threat-score-code.png)
 
 ### 5. IF Node (Risk Level Check)
 Routes the workflow based on risk level:
@@ -68,7 +68,7 @@ Routes the workflow based on risk level:
 
 **Condition:** `riskLevel` equals `HIGH`
 
-![IF Node Configuration](images/if-node-config.png)
+![IF Node Configuration](images/ip-reputation-check/09-if-node-config.png)
 
 ### 6. Discord Notification
 Sends a formatted alert to a Discord channel via webhook when a HIGH risk IP is detected.
@@ -82,7 +82,7 @@ Sends a formatted alert to a Discord channel via webhook when a HIGH risk IP is 
 **Suspicious Detections:** {{ $json.suspicious }}
 ```
 
-![Discord Alert Result](images/discord-alert-result.png)
+![Discord Alert Result](images/ip-reputation-check/15-discord-alert-received.png)
 
 ## Threshold Tuning
 
