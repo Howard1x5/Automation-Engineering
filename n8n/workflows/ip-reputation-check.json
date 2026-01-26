@@ -1,5 +1,5 @@
 {
-  "name": "ip-reputation-check",
+  "name": "IP Reputation Check",
   "nodes": [
     {
       "parameters": {},
@@ -53,13 +53,13 @@
       "credentials": {
         "httpHeaderAuth": {
           "id": "Ab8bAMUjeMgYa4Ye",
-          "name": "Header Auth account"
+          "name": "VirusTotal API"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "  const vtData = $input.first().json.data.attributes;\n  const stats = vtData.last_analysis_stats;\n\n  // Calculate threat score (0-100)\n  const totalVendors = stats.malicious + stats.suspicious + stats.harmless + stats.undetected;\n  const threatScore = Math.round(((stats.malicious * 100) + (stats.suspicious * 50)) / totalVendors);\n\n  // Risk level based on malicious detection count (tuned from real-world analysis)\n  // 5+ malicious detections = HIGH (actionable threat)\n  // 2-4 malicious detections = MEDIUM (worth investigating)\n  // 0-1 malicious detections = LOW\n  let riskLevel;\n  if (stats.malicious >= 5) {\n    riskLevel = 'HIGH';\n  } else if (stats.malicious >= 2) {\n    riskLevel = 'MEDIUM';\n  } else {\n    riskLevel = 'LOW';\n  }\n\n  return {\n    ip: $input.first().json.data.id,\n    threatScore: threatScore,\n    malicious: stats.malicious,\n    suspicious: stats.suspicious,\n    harmless: stats.harmless,\n    tags: vtData.tags || [],\n    riskLevel: riskLevel\n  };"
+        "jsCode": "const vtData = $input.first().json.data.attributes;\n  const stats = vtData.last_analysis_stats;\n\n  // Defang IP for safe sharing\n  function defangIp(ip) {\n    return ip.replace(/\\./g, '[.]');\n  }\n\n  // Calculate threat score (0-100)\n  const totalVendors = stats.malicious + stats.suspicious + stats.harmless + stats.undetected;\n  const threatScore = Math.round(((stats.malicious * 100) + (stats.suspicious * 50)) / totalVendors);\n\n  // Risk level based on malicious detection count\n  let riskLevel;\n  if (stats.malicious >= 5) {\n    riskLevel = 'HIGH';\n  } else if (stats.malicious >= 2) {\n    riskLevel = 'MEDIUM';\n  } else {\n    riskLevel = 'LOW';\n  }\n\n  return {\n    ip: $input.first().json.data.id,\n    ipDefanged: defangIp($input.first().json.data.id),\n    threatScore: threatScore,\n    malicious: stats.malicious,\n    suspicious: stats.suspicious,\n    harmless: stats.harmless,\n    tags: vtData.tags || [],\n    riskLevel: riskLevel\n  };\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -107,7 +107,7 @@
     {
       "parameters": {
         "authentication": "webhook",
-        "content": "=  **IP Address:** {{ $json.ip }}\n  **Threat Score:** {{ $json.threatScore }}/100\n  **Risk Level:** {{ $json.riskLevel }}\n  **Malicious Detections:** {{ $json.malicious }}\n  **Suspicious Detections:** {{ $json.suspicious }}\n",
+        "content": "=  **IP Address:** {{ $json.ipDefanged }}\n  **Threat Score:** {{ $json.threatScore }}/100\n  **Risk Level:** {{ $json.riskLevel }}\n  **Malicious Detections:** {{ $json.malicious }}\n  **Suspicious Detections:** {{ $json.suspicious }}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.discord",
@@ -190,7 +190,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "1c8df967-c16d-4f86-94e8-5e962c1669d5",
+  "versionId": "b4952f63-7934-41f2-abf8-a82046a7c5da",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "867df41d64ed267ee3df8d9c936cf8a1df3bf821f22cc26d55b88203308447df"

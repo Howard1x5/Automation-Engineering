@@ -16,7 +16,7 @@ This guide walks through building an automated IP reputation workflow that check
 - Shows conditional routing based on calculated risk
 - Practical notification system for security alerts
 
-![Complete Workflow](images/16-workflow-overview-complete.png)
+![Complete Workflow](images/ip-reputation-check/16-workflow-overview-complete.png)
 
 ---
 
@@ -56,7 +56,7 @@ Add an **HTTP Request** node and configure authentication:
 4. Name: `x-apikey`
 5. Value: Your VirusTotal API key
 
-![Header Auth Setup](images/03-virustotal-header-auth-setup.png)
+![Header Auth Setup](images/ip-reputation-check/03-virustotal-header-auth-setup.png)
 
 ### Configure the Request
 - Method: **GET**
@@ -67,7 +67,7 @@ The `{{$json.ip_to_check}}` pulls the IP from the previous Set node dynamically.
 ### Test It
 Run the workflow. You should see a response with `last_analysis_stats` showing malicious, suspicious, harmless, and undetected counts.
 
-![API Test Success](images/04-virustotal-api-test-success.png)
+![API Test Success](images/ip-reputation-check/04-virustotal-api-test-success.png)
 
 ---
 
@@ -77,7 +77,7 @@ The raw VirusTotal response has a lot of data. We need to process it into someth
 
 Add a **Code** node (JavaScript) after the HTTP Request.
 
-![Adding Code Node](images/06-adding-code-node.png)
+![Adding Code Node](images/ip-reputation-check/06-adding-code-node.png)
 
 ### The Code
 
@@ -110,7 +110,7 @@ return {
 };
 ```
 
-![Threat Score Code](images/07-calculate-threat-score-code.png)
+![Threat Score Code](images/ip-reputation-check/07-calculate-threat-score-code.png)
 
 ### Important: Why These Thresholds?
 
@@ -142,7 +142,7 @@ Add an **IF** node to route based on the calculated risk level.
 ### Configuration
 - Condition: `{{ $json.riskLevel }}` **equals** `HIGH`
 
-![IF Node Configuration](images/09-if-node-config.png)
+![IF Node Configuration](images/ip-reputation-check/09-if-node-config.png)
 
 The TRUE branch goes to alerting. The FALSE branch can go to logging or just end (for now).
 
@@ -163,9 +163,9 @@ For high-risk IPs, we want an immediate notification. Discord webhooks are simpl
 2. **Connection Type:** Webhook (not Bot Token)
 3. Create a credential and paste your webhook URL
 
-![Discord Webhook Setup](images/12-discord-webhook-setup.png)
+![Discord Webhook Setup](images/ip-reputation-check/12-discord-webhook-setup.png)
 
-![Webhook Success](images/13-discord-webhook-success.png)
+![Webhook Success](images/ip-reputation-check/13-discord-webhook-success.png)
 
 ### Configure the Message
 
@@ -177,7 +177,7 @@ For high-risk IPs, we want an immediate notification. Discord webhooks are simpl
 **Suspicious Detections:** {{ $json.suspicious }}
 ```
 
-![Discord Message Config](images/14-discord-message-config.png)
+![Discord Message Config](images/ip-reputation-check/14-discord-message-config.png)
 
 ---
 
@@ -191,7 +191,7 @@ Time to test the full workflow with a known bad IP.
 
 If everything is configured correctly, you should see an alert in your Discord channel:
 
-![Discord Alert Received](images/15-discord-alert-received.png)
+![Discord Alert Received](images/ip-reputation-check/15-discord-alert-received.png)
 
 ---
 
@@ -206,7 +206,7 @@ The complete flow:
 5. **IF** - Routes HIGH risk to alerting
 6. **Discord** - Sends notification for threats
 
-![Complete Workflow](images/16-workflow-overview-complete.png)
+![Complete Workflow](images/ip-reputation-check/16-workflow-overview-complete.png)
 
 ---
 

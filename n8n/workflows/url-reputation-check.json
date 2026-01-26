@@ -1,0 +1,244 @@
+{
+  "name": "URL Reputation Check",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0bc610e6-8103-4576-a050-828d6a0f19ad",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "df640085-165c-40f5-a324-c702eb91cd42",
+              "name": "url_to_check",
+              "value": "http://87.106.54.213/bins/spc",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "dd3401ca-e24d-425d-81c6-785673d784d4",
+      "name": "url_to_check"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.virustotal.com/api/v3/urls",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url_to_check }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "0f7650a0-bcf5-4a6b-bc47-09cb0ef370fd",
+      "name": "POST URL",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Ab8bAMUjeMgYa4Ye",
+          "name": "VirusTotal API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.virustotal.com/api/v3/analyses/{{ $json.data.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "0299af24-8f00-47d7-9a71-e20c1472da78",
+      "name": "GET URL Analysis",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Ab8bAMUjeMgYa4Ye",
+          "name": "VirusTotal API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.data.attributes;\nconst stats = data.stats;\n\n// Defang URL for safe sharing\nfunction defangUrl(url) {\n  return url\n    .replace(/https:\\/\\//gi, 'hxxps://')\n    .replace(/http:\\/\\//gi, 'hxxp://')\n    .replace(/\\./g, '[.]');\n}\n\n// Calculate threat score\nconst totalVendors = stats.malicious + stats.suspicious + stats.harmless + stats.undetected;\nconst threatScore = Math.round(((stats.malicious * 100) + (stats.suspicious * 50)) / totalVendors);\n\n// Risk level based on malicious detection count\nlet riskLevel;\nif (stats.malicious >= 5) {\n  riskLevel = 'HIGH';\n} else if (stats.malicious >= 2) {\n  riskLevel = 'MEDIUM';\n} else {\n  riskLevel = 'LOW';\n}\n\nreturn {\n  url: data.url,\n  urlDefanged: defangUrl(data.url),\n  threatScore: threatScore,\n  malicious: stats.malicious,\n  suspicious: stats.suspicious,\n  harmless: stats.harmless,\n  riskLevel: riskLevel\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "a7c727ea-f9c7-486b-90a2-bdea85163e35",
+      "name": "Threat Score {Javascript}"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6966dd27-c3a1-4aca-bd5e-cdbcb4e676ba",
+              "leftValue": "={{ $json.riskLevel }}",
+              "rightValue": "HIGH",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "ae41176c-9494-4f54-ae7a-7b0235dc2c26",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=**URL Flagged:**  {{ $json.urlDefanged }}\n**Threat Score:** {{ $json.threatScore }}/100\n**Risk Level:** {{ $json.riskLevel }}\n**Malicious Detections:** {{ $json.malicious }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        -96
+      ],
+      "id": "27ce1997-0338-446f-acb2-271b7198a31e",
+      "name": "Discord",
+      "webhookId": "5ea92201-f8d4-4541-b6a7-4b6a8c59bb32",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "scSk0MO9NtdKUyL0",
+          "name": "Discord Webhook account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "url_to_check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "url_to_check": {
+      "main": [
+        [
+          {
+            "node": "POST URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST URL": {
+      "main": [
+        [
+          {
+            "node": "GET URL Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET URL Analysis": {
+      "main": [
+        [
+          {
+            "node": "Threat Score {Javascript}",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threat Score {Javascript}": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f060d418-2810-4e94-8d9d-4f22438f8080",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "867df41d64ed267ee3df8d9c936cf8a1df3bf821f22cc26d55b88203308447df"
+  },
+  "id": "SEDmDh9WHt-ASebL5lpZV",
+  "tags": []
+}
